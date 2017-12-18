@@ -476,12 +476,6 @@ class BaseLustyJuggler
       VIM::command "sb #{buf}"
     end
 
-    def needs_script?(mode, key)
-        VIM::command "redir => s:needs_script | #{mode}map #{key} | redir END"
-        mapping = VIM::evaluate("s:needs_script").split
-        return ((mapping.length > 2) and (mapping[2] == '&'))
-    end
-
     def map_key(key, action)
       ['n','s','x','o','i','c','l'].each do |mode|
         VIM::command "let s:maparg_holder = maparg('#{key}', '#{mode}')"
@@ -493,8 +487,7 @@ class BaseLustyJuggler
             silent  = VIM::evaluate_bool("s:maparg_dict_holder['silent']")  ? ' <silent>' : ''
             expr    = VIM::evaluate_bool("s:maparg_dict_holder['expr']")    ? ' <expr>'   : ''
             buffer  = VIM::evaluate_bool("s:maparg_dict_holder['buffer']")  ? ' <buffer>' : ''
-            script  = needs_script?(mode, key) ? ' <script>' : ''
-            restore_cmd = "#{mode}#{nore}map#{silent}#{expr}#{buffer}#{script} #{key} #{orig_rhs}"
+            restore_cmd = "#{mode}#{nore}map#{silent}#{expr}#{buffer} #{key} #{orig_rhs}"
           else
             nore = LustyJ::starts_with?(orig_rhs, '<Plug>') ? '' : 'nore'
             restore_cmd = "#{mode}#{nore}map <silent> #{key} #{orig_rhs}"
